@@ -1,8 +1,9 @@
 '''
-F. Wendling, J.-J. Bellanger, F. Bartolomei, and P. Chauvel, “Relevance of
+F. Wendling, J.-J. Bellanger, F. Bartolomei, and P. Chauvel, "Relevance of
 nonlinear lumped-parameter models in the analysis of depth-EEG epileptic
-signals,” Biological cybernetics, vol. 83, no. 4, pp. 367–378, 2000.
+signals," Biological cybernetics, vol. 83, no. 4, pp. 367-378, 2000.
 '''
+from __future__ import division
 
 import numpy as np
 from scipy.integrate import odeint
@@ -12,7 +13,7 @@ import matplotlib.pyplot as plt
 def s(v):
     '''Sigmoid function.'''
     e0 = 2.5
-    r = 6
+    r = 0.56
     v0 = 6
     return (2 * e0) / (1 + np.exp(r * (v0 - v)))
 
@@ -48,9 +49,11 @@ if __name__ == '__main__':
     t = np.linspace(0, 0.51, 10000)
     ic = 6 * (0,)
     #sol = odeint(f, ic, t)
-    sol, t = ode_euler(f, ic, 1, 1e-3)
+    sol, t = ode_euler(f, ic, 5, 1e-3)
     v1 = sol[:,3]
     v2 = sol[:,4]
     y = v1 - v2
     plt.plot(t, y)
     plt.show()
+
+
