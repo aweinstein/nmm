@@ -1,6 +1,6 @@
 import numpy as np
 
-def ode_euler(f, y0, tf, h):
+def ode_euler(f, y0, tf, h, params=()):
     '''Solve and ODE using Euler method.
     Solve the ODE y_dot = f(y, t)
     Parameters
@@ -13,6 +13,8 @@ def ode_euler(f, y0, tf, h):
         Final time.
     h : float
         Time step
+    params : tuple, optional
+        Optional list of parameters to be passed to `f`.
     Returns
     -------
     y : array_like
@@ -25,5 +27,5 @@ def ode_euler(f, y0, tf, h):
     y = np.empty((ts.size, y0.size))
     y[0,:] = y0
     for t, i in zip(ts[1:], range(ts.size - 1)):
-        y[i+1,:] = y[i,:] + h * f(y[i,:], t)
+        y[i+1,:] = y[i,:] + h * f(y[i,:], t, *params)
     return y, ts

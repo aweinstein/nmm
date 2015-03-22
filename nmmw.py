@@ -6,7 +6,7 @@ signals," Biological cybernetics, vol. 83, no. 4, pp. 367-378, 2000.
 from __future__ import division
 
 import numpy as np
-from scipy.integrate import odeint
+#from scipy.integrate import odeint
 from ode_euler import ode_euler
 import matplotlib.pyplot as plt
 
@@ -17,15 +17,16 @@ def s(v):
     v0 = 6
     return (2 * e0) / (1 + np.exp(r * (v0 - v)))
 
-def f(y, t):
+def f(y, t, C=68):
     y0, y1, y2, y3, y4, y5 = y
-    #p = 220 + 22 * np.random.randn()
-    p = 120 + 200 * np.random.rand()
+    #p = 220 + 22 * np.random.randn() 
+    #Page 4 of Jansen et al, "p(t) will have
+    # an amplitude varying between 120 and 320 pulses per second."
+    p = 120 + 200 * np.random.rand() 
     A = 3.25
     B = 22
     a = 100
     b = 50
-    C = 135
     C1 = C
     C2 = 0.8 * C
     C3 = 0.25 * C
@@ -46,14 +47,39 @@ def plot_sigmoid():
 
 if __name__ == '__main__':
     np.random.seed(1234)
-    t = np.linspace(0, 0.51, 10000)
-    ic = 6 * (0,)
-    #sol = odeint(f, ic, t)
-    sol, t = ode_euler(f, ic, 5, 1e-3)
-    v1 = sol[:,3]
-    v2 = sol[:,4]
-    y = v1 - v2
-    plt.plot(t, y)
+    Cs = (68, 128, 135, 270, 675, 1350)
+    EEGs = []
+    for C in Cs:
+        # Run it once for a brief time to get sensible initial conditions
+        ic = 6 * (0,)
+        sol, t = ode_euler(f, ic, 0.3, 1e-3, params=(C,))
+        ic = sol[-1,:]
+        # Run it again with the new initial conditions
+        sol, t = ode_euler(f, ic, 2, 1e-3, params=(C,))
+
+        y0, y1, y2 = sol[:,:3].T
+        EEGs.append(y1 - y2)
+
+
+    # f, axs = plt.subplots(6, figsize=(21,8))
+    # for ax, var in zip(axs, sol.T):
+    #     ax.plot(t, var)
+    #     ax.set_xticks([])
+    # plt.tight_layout()
+
+    # plt.figure(figsize=(21,3))
+    # plt.plot(t, y1 - y2)
+
+    plt.close('all')
+    f, axs = plt.subplots(len(EEGs), figsize=(21,10))
+    for EEG, ax, C in zip(EEGs, axs, Cs):
+        ax.plot(t, EEG)
+        #ax.set_xticks([])
+        ax.set_title('C = %d' % C)
+    ax.set_xlabel('time [s]')
+    plt.tight_layout()
+    plt.savefig('fig_3_jansen_rit.pdf')
     plt.show()
 
+        
 
