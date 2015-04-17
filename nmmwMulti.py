@@ -5,13 +5,14 @@ F. Wendling, J.-J. Bellanger, F. Bartolomei, and P. Chauvel, “Relevance of
 nonlinear lumped-parameter models in the analysis of depth-EEG epileptic
 signals,” Biological cybernetics, vol. 83, no. 4, pp. 367–378, 2000.
 '''
+import time
 
 import numpy as np
-from ode_euler import ode_euler
+from ode_eulermulti import ode_eulerM
 import matplotlib.pyplot as plt
 
 # Parameters
-A = 3.25
+A = 3.25,3.22,3.28
 B = 22
 a = 100
 b = 50
@@ -32,7 +33,7 @@ def s(v, e0 = 2.5, r = 0.56, v0 = 6):
 def f(y, t):
     y0, y1, y2, y3, y4, y5 = y
     
-    p = 220 + 22 * np.random.randn()
+    p = 220 + 100 * np.random.randn()
     y0_dot = y3
     y3_dot = A * a * s(y1 - y2) - 2 * a *y3 - a**2 * y0
     y1_dot = y4
@@ -48,13 +49,20 @@ def plot_sigmoid():
 
 if __name__ == '__main__':
     np.random.seed(1234)
+    nsim=50   
+    t0=time.time()
+    A=np.linspace(3,4,nsim)
 #    t = np.linspace(0, 1, 10000)
     ic = np.array([  1.62500000e-01,   2.14500000e+01,   3.21991056e+00,
-         4.62014664e-16,  -7.97724519e-13,  -8.62602425e-14])
+         4.62014664e-16,  -7.97724519e-13,  -8.62602425e-14]) * np.ones((nsim,1))
 #    ic = 6 * (0,)
 #    sol = odeint(f, ic, t)
-         
-    sol, t = ode_euler(f, ic, 5, 1e-3)
+    ic = ic.T     
+
+    t0=time.time()    
+    sol, t = ode_eulerM(f, ic, 25, 1e-3)
+    print time.time()-t0    
+    
     v1 = sol[:,3]
     v2 = sol[:,4]
     y = v1 - v2
